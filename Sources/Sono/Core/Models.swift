@@ -438,7 +438,6 @@ struct ServerCapabilities: Codable, Hashable {
 struct ListeningSession: Identifiable, Hashable, Codable {
     let id: String
     let user: String
-    let playerId: String?
     let client: String?
     let trackId: String?
     let trackTitle: String?
@@ -461,12 +460,11 @@ struct ListeningSession: Identifiable, Hashable, Codable {
         case startedAt
     }
     
-    init(id: String, user: String, playerId: String? = nil, client: String? = nil,
+    init(id: String, user: String, client: String? = nil,
          trackId: String? = nil, trackTitle: String? = nil, trackArtist: String? = nil,
          trackAlbum: String? = nil, isPlaying: Bool, positionMs: Int? = nil, startedAt: Date? = nil) {
         self.id = id
         self.user = user
-        self.playerId = playerId
         self.client = client
         self.trackId = trackId
         self.trackTitle = trackTitle
@@ -481,7 +479,6 @@ struct ListeningSession: Identifiable, Hashable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         self.user = try container.decode(String.self, forKey: .user)
-        self.playerId = try? container.decode(String.self, forKey: .playerId)
         self.client = try? container.decode(String.self, forKey: .client)
         self.trackId = try? container.decode(String.self, forKey: .trackId)
         self.trackTitle = try? container.decode(String.self, forKey: .trackTitle)
