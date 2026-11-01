@@ -264,7 +264,7 @@ struct Sidebar: View {
                     .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.white.opacity(0.06), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                .hoverEffect(.highlight)
+                
                 .padding(.horizontal, 12)
                 .padding(.bottom, 16)
             }
@@ -320,13 +320,13 @@ struct Sidebar: View {
             .background(
                 isSelected ?
                 LinearGradient(colors: [Theme.purple, Theme.deep], startPoint: .leading, endPoint: .trailing) :
-                Color.clear,
+                LinearGradient(colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing),
                 in: RoundedRectangle(cornerRadius: 10, style: .continuous)
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .hoverEffect(.highlight)
+        
     }
 }
 
