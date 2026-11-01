@@ -89,6 +89,9 @@ final class AppState {
     var serverExtensions: [OpenSubsonicExtension] = []
     var serverLicense: ServerLicense? = nil
     var genres: [Genre] = []
+    var serverCapabilities: ServerCapabilities? = nil
+    var activeSessions: [ListeningSession] = []
+    var sessionsPollingTask: Task<Void, Never>? = nil
     var streamingBitrate: Int = UserDefaults.standard.integer(forKey: "streamingBitrate") {
         didSet {
             UserDefaults.standard.set(streamingBitrate, forKey: "streamingBitrate")
@@ -392,6 +395,22 @@ final class AppState {
         }
     }
     
+    private func pollActiveSessions() {
+        sessionsPollingTask?.cancel()
+        sessionsPollingTask = Task {
+            while !Task.isCancelled {
+                guard let c = self.client else { break }
+                do {
+                    let sessions = try await c.getActiveSessions()
+                    self.activeSessions = sessions
+                } catch {
+                    break
+                }
+                try? await Task.sleep(for: .seconds(10))
+            }
+        }
+    }
+    
     func loadServerControlData() async {
         guard let c = client, let s = active else { return }
         
@@ -430,6 +449,15 @@ final class AppState {
         self.serverExtensions = (try? await c.getOpenSubsonicExtensions()) ?? []
         self.serverLicense = try? await c.getLicense()
         self.genres = (try? await c.getGenres()) ?? []
+        
+        // Server capabilities
+        self.serverCapabilities = try? await c.getCapabilities()
+        
+        // Active sessions
+        self.activeSessions = (try? await c.getActiveSessions()) ?? []
+        if !activeSessions.isEmpty {
+            pollActiveSessions()
+        }
     }
     
     @discardableResult

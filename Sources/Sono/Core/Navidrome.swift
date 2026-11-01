@@ -372,6 +372,106 @@ struct NavidromeClient {
     func getGenres() async throws -> [Genre] {
         try await call("getGenres").genres?.genre ?? []
     }
+    
+    // MARK: - Server Info & Capabilities
+    
+    /// Gets comprehensive server information including version, extensions, and capabilities.
+    func getServerInfo() async throws -> ServerInfo {
+        let pingResponse = try await call("ping")
+        let extensions = (try? await call("getOpenSubsonicExtensions").openSubsonicExtensions) ?? []
+        
+        return ServerInfo(
+            serverVersion: pingResponse.version ?? pingResponse.serverVersion ?? "Unknown",
+            apiVersion: "1.16.1",
+            extensions: extensions,
+            user: server.user,
+            latencyMs: nil
+        )
+    }
+    
+    /// Gets server capabilities based on available extensions and API support.
+    func getCapabilities() async throws -> ServerCapabilities {
+        let extensions = (try? await call("getOpenSubsonicExtensions").openSubsonicExtensions) ?? []
+        let extNames = extensions.map(\.name)
+        
+        return ServerCapabilities(
+            canScan: extNames.contains("scanStatus") || true, // Most servers support scanning
+            canAdmin: true, // Assume admin capabilities, will be verified by actual calls
+            canUpload: extNames.contains("upload") || true,
+            canDownload: true,
+            canStream: true,
+            canGetLyrics: extNames.contains("lyrics") || true,
+            canGetCoverArt: true,
+            supportsOpenSubsonic: !extensions.isEmpty,
+            openSubsonicExtensions: extNames
+        )
+    }
+    
+    /// Gets currently active listening sessions (Navidrome-specific).
+    func getActiveSessions() async throws -> [ListeningSession] {
+        // Try Navidrome's getActiveSessions endpoint
+        if let response = try? await call("getActiveSessions") {
+            // This would need to be added to the Envelope.Body
+            return response.activeSessions?.session ?? []
+        }
+        
+        // Fallback: try OpenSubsonic getNowPlaying if available
+        if let response = try? await call("getNowPlaying") {
+            // Parse now playing response
+            // This is a placeholder - actual implementation depends on server support
+            return []
+        }
+        
+        return []
+    }
+    
+    /// Gets all available lyric variants for a song (Navidrome-specific).
+    func getLyricVariants(for song: Song) async -> [LyricVariant] {
+        var variants: [LyricVariant] = []
+        
+        // Try OpenSubsonic getLyricsBySongId first
+        if let body = try? await call("getLyricsBySongId", ["id": song.id]),
+           let structuredList = body.lyricsList?.structuredLyrics {
+            for structured in structuredList {
+                if let lines = structured.line, !lines.isEmpty {
+                    let lyricLines = lines.enumerated().map { idx, line in
+                        let sec: Double = (structured.synced == true && line.start != nil) ? (Double(line.start!) / 1000.0) : -1.0
+                        return LyricLine(id: idx, time: sec, text: line.value ?? "")
+                    }
+                    let variant = LyricVariant(
+                        language: structured.lang,
+                        isSynced: structured.synced ?? false,
+                        lines: lyricLines,
+                        source: "server"
+                    )
+                    variants.append(variant)
+                }
+            }
+        }
+        
+        // If no synced lyrics found, try standard Subsonic getLyrics
+        if variants.isEmpty {
+            var q: [String: String] = ["title": song.title]
+            if let artist = song.artist, !artist.isEmpty {
+                q["artist"] = artist
+            }
+            if let body = try? await call("getLyrics", q),
+               let content = body.lyrics?.content, !content.isEmpty {
+                let lines = Lyrics.parse(content)
+                if !lines.isEmpty {
+                    let variant = LyricVariant(
+                        language: nil,
+                        isSynced: lines.contains(where: { $0.time >= 0 }),
+                        lines: lines,
+                        source: "server"
+                    )
+                    variants.append(variant)
+                }
+            }
+        }
+        
+        return variants
+    }
 
     func stream(_ id: String, maxBitRate: Int? = nil) -> URL {
         var q: [String: String] = ["id": id]

@@ -3,6 +3,8 @@ import SwiftUI
 /// Full-page lyrics. Redraws every display frame and reads the playhead directly, so sync is bounded by frame rate, not a timer.
 struct LyricsView: View {
     @Environment(AppState.self) var s
+    @State private var availableLanguages: [String] = []
+    @State private var selectedLanguage: String? = nil
     
     var body: some View {
         let p = s.player
@@ -88,6 +90,22 @@ struct LyricsView: View {
                                     .font(.caption)
                             }
                             .buttonStyle(.bordered)
+                        }
+                        
+                        // Language selection
+                        if !availableLanguages.isEmpty {
+                            Picker("Language", selection: $selectedLanguage) {
+                                Text("Default").tag(nil as String?)
+                                ForEach(availableLanguages, id: \.self) { lang in
+                                    Text(lang).tag(lang as String?)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .font(.caption)
+                            .onChange(of: selectedLanguage) { _, newLang in
+                                loadLyricsForLanguage(newLang)
+                            }
+                            .padding(.top, 4)
                         }
                         
                         // Sync calibration (fine-tune lead offset)
@@ -183,6 +201,38 @@ struct LyricsView: View {
             .buttonStyle(.plain)
             .keyboardShortcut(.cancelAction)
             .padding(28)
+        }
+        .onAppear {
+            loadLyricsData()
+        }
+        .onChange(of: s.player.current?.id) { _ in
+            loadLyricsData()
+        }
+    }
+    
+    private func loadLyricsData() {
+        guard let current = s.player.current else { return }
+        Task {
+            availableLanguages = await Lyrics.availableLanguages(for: current, client: s.client)
+            if availableLanguages.isEmpty {
+                selectedLanguage = nil
+            } else if selectedLanguage == nil {
+                selectedLanguage = availableLanguages.first
+            }
+        }
+    }
+    
+    private func loadLyricsForLanguage(_ language: String?) {
+        guard let current = s.player.current else { return }
+        Task {
+            if let lang = language {
+                let variants = await Lyrics.getVariants(for: current, client: s.client)
+                if let variant = variants.first(where: { $0.language == lang }) {
+                    s.player.lyrics = variant.lines
+                }
+            } else {
+                s.player.lyrics = await Lyrics.fetch(current, client: s.client)
+            }
         }
     }
 }

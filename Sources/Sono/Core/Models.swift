@@ -380,7 +380,154 @@ struct Envelope: Decodable {
         let openSubsonicExtensions: [OpenSubsonicExtension]?
         let license: ServerLicense?
         let genres: GenresResponse?
+        
+        // Active sessions
+        let activeSessions: ActiveSessionsResponse?
     }
     let body: Body
     enum CodingKeys: String, CodingKey { case body = "subsonic-response" }
+}
+
+// MARK: - Server Info Models
+
+struct ServerInfo: Codable, Hashable {
+    let serverVersion: String
+    let apiVersion: String
+    let extensions: [OpenSubsonicExtension]
+    let user: String?
+    let latencyMs: Int?
+    
+    init(serverVersion: String, apiVersion: String, extensions: [OpenSubsonicExtension], user: String? = nil, latencyMs: Int? = nil) {
+        self.serverVersion = serverVersion
+        self.apiVersion = apiVersion
+        self.extensions = extensions
+        self.user = user
+        self.latencyMs = latencyMs
+    }
+}
+
+struct ServerCapabilities: Codable, Hashable {
+    let canScan: Bool
+    let canAdmin: Bool
+    let canUpload: Bool
+    let canDownload: Bool
+    let canStream: Bool
+    let canGetLyrics: Bool
+    let canGetCoverArt: Bool
+    let supportsOpenSubsonic: Bool
+    let openSubsonicExtensions: [String]
+    
+    init(canScan: Bool = false, canAdmin: Bool = false, canUpload: Bool = false, 
+         canDownload: Bool = false, canStream: Bool = true, canGetLyrics: Bool = false,
+         canGetCoverArt: Bool = true, supportsOpenSubsonic: Bool = false,
+         openSubsonicExtensions: [String] = []) {
+        self.canScan = canScan
+        self.canAdmin = canAdmin
+        self.canUpload = canUpload
+        self.canDownload = canDownload
+        self.canStream = canStream
+        self.canGetLyrics = canGetLyrics
+        self.canGetCoverArt = canGetCoverArt
+        self.supportsOpenSubsonic = supportsOpenSubsonic
+        self.openSubsonicExtensions = openSubsonicExtensions
+    }
+}
+
+// MARK: - Listening Session Model
+
+struct ListeningSession: Identifiable, Hashable, Codable {
+    let id: String
+    let user: String
+    let playerId: String?
+    let client: String?
+    let trackId: String?
+    let trackTitle: String?
+    let trackArtist: String?
+    let trackAlbum: String?
+    let isPlaying: Bool
+    let positionMs: Int?
+    let startedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "playerId"
+        case user = "username"
+        case playerId
+        case client
+        case trackId
+        case trackTitle
+        case trackArtist
+        case trackAlbum
+        case isPlaying
+        case positionMs
+        case startedAt
+    }
+    
+    init(id: String, user: String, playerId: String? = nil, client: String? = nil,
+         trackId: String? = nil, trackTitle: String? = nil, trackArtist: String? = nil,
+         trackAlbum: String? = nil, isPlaying: Bool, positionMs: Int? = nil, startedAt: Date? = nil) {
+        self.id = id
+        self.user = user
+        self.playerId = playerId
+        self.client = client
+        self.trackId = trackId
+        self.trackTitle = trackTitle
+        self.trackArtist = trackArtist
+        self.trackAlbum = trackAlbum
+        self.isPlaying = isPlaying
+        self.positionMs = positionMs
+        self.startedAt = startedAt
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.user = try container.decode(String.self, forKey: .user)
+        self.playerId = try? container.decode(String.self, forKey: .playerId)
+        self.client = try? container.decode(String.self, forKey: .client)
+        self.trackId = try? container.decode(String.self, forKey: .trackId)
+        self.trackTitle = try? container.decode(String.self, forKey: .trackTitle)
+        self.trackArtist = try? container.decode(String.self, forKey: .trackArtist)
+        self.trackAlbum = try? container.decode(String.self, forKey: .trackAlbum)
+        
+        // Handle isPlaying - can be Bool or String
+        if let boolVal = try? container.decode(Bool.self, forKey: .isPlaying) {
+            self.isPlaying = boolVal
+        } else if let strVal = try? container.decode(String.self, forKey: .isPlaying) {
+            self.isPlaying = strVal.lowercased() == "true"
+        } else {
+            self.isPlaying = false
+        }
+        
+        self.positionMs = try? container.decode(Int.self, forKey: .positionMs)
+        
+        // Handle startedAt - can be Date or String
+        if let dateVal = try? container.decode(Date.self, forKey: .startedAt) {
+            self.startedAt = dateVal
+        } else if let strVal = try? container.decode(String.self, forKey: .startedAt) {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            self.startedAt = formatter.date(from: strVal)
+        } else {
+            self.startedAt = nil
+        }
+    }
+}
+
+struct ActiveSessionsResponse: Decodable {
+    let session: [ListeningSession]?
+    
+    enum CodingKeys: String, CodingKey {
+        case session
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let list = try? container.decode([ListeningSession].self, forKey: .session) {
+            self.session = list
+        } else if let single = try? container.decode(ListeningSession.self, forKey: .session) {
+            self.session = [single]
+        } else {
+            self.session = []
+        }
+    }
 }
