@@ -177,6 +177,9 @@ struct ServerAdminPage: View {
             RadioStationSheet(stationToEdit: nil)
         }
         .sheet(item: $editingRadio) { station in
+        .sheet(isPresented: $showFolderBrowser) {
+            FolderBrowserView(isPresented: $showFolderBrowser)
+        }
             RadioStationSheet(stationToEdit: station)
         }
         .task {
@@ -281,21 +284,37 @@ struct RescanAndFoldersView: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text("\(state.musicFolders.count) folder\(state.musicFolders.count == 1 ? "" : "s")")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    
+                    if state.isAdmin {
+                        Button {
+                            showFolderBrowser = true
+                        } label: {
+                            Label("Add Folder", systemImage: "folder.badge.plus")
+                                .font(.system(size: 11, weight: .medium))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 }
                 
+                Text("\(state.musicFolders.count) folder\(state.musicFolders.count == 1 ? "" : "s") configured")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                
                 if state.musicFolders.isEmpty {
-                    HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Image(systemName: "folder.badge.questionmark")
-                            .foregroundStyle(.secondary)
-                        Text("Default Music Folder configured on server.")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.secondary.opacity(0.4))
+                        Text("No Music Folders Configured")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white)
+                        Text("Add folders from your server to start indexing music.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(20)
                     .background(Color.white.opacity(0.03), in: RoundedRectangle(cornerRadius: 10))
                 } else {
                     VStack(spacing: 8) {
@@ -307,24 +326,46 @@ struct RescanAndFoldersView: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(folder.name)
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .font(.system(size: 13, weight: .semibold, design: .default))
                                         .foregroundStyle(.white)
-                                    Text("Folder ID: \(folder.id)")
-                                        .font(.caption2)
+                                    Text("ID: \(folder.id)")
+                                        .font(.system(size: 10, design: .monospaced))
                                         .foregroundStyle(.secondary)
                                 }
                                 
                                 Spacer()
                                 
+                                if state.isAdmin {
+                                    Menu {
+                                        Button {
+                                            Task { await scanSpecificFolder(folder.id) }
+                                        } label: {
+                                            Label("Scan This Folder", systemImage: "arrow.clockwise")
+                                        }
+                                        Divider()
+                                        Button(role: .destructive) {
+                                            removeFolder(folder)
+                                        } label: {
+                                            Label("Remove Folder", systemImage: "trash")
+                                        }
+                                    } label: {
+                                        Image(systemName: "ellipsis")
+                                            .font(.system(size: 13))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .menuStyle(.borderlessButton)
+                                    .menuIndicator(.hidden)
+                                }
+                                
                                 Text("Online")
-                                    .font(.caption2.bold())
+                                    .font(.system(size: 10, weight: .bold))
                                     .foregroundStyle(Theme.successGreen)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
                                     .background(Theme.successGreen.opacity(0.15), in: Capsule())
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
                             .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 10))
                             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.white.opacity(0.06), lineWidth: 1))
                         }
@@ -1221,6 +1262,32 @@ struct RadioStationSheet: View {
                 if ok { dismiss() }
             }
             isSubmitting = false
+        }
+    }
+}
+
+// MARK: - Folder Management Functions
+
+extension ServerAdminPage {
+    private func scanSpecificFolder(_ id: String) async {
+        guard let c = state.client else { return }
+        do {
+            _ = try await c.scanMusicFolder(id: id)
+            state.showToast("Started scanning folder", kind: .info)
+        } catch {
+            state.showToast("Failed to scan folder: \(error.localizedDescription)", kind: .error)
+        }
+    }
+    
+    private func removeFolder(_ folder: MusicFolder) {
+        Task {
+            do {
+                try await state.client?.removeMusicFolder(id: folder.id)
+                await state.loadServerControlData()
+                state.showToast("Removed folder: \(folder.name)", kind: .info)
+            } catch {
+                state.showToast("Failed to remove folder: \(error.localizedDescription)", kind: .error)
+            }
         }
     }
 }

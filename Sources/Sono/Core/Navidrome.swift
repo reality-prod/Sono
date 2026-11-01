@@ -264,6 +264,37 @@ struct NavidromeClient {
         try await call("getMusicFolders").musicFolders?.musicFolder ?? []
     }
     
+    /// Creates a new music folder on the server (Admin required).
+    func createMusicFolder(path: String, name: String? = nil) async throws {
+        var q: [String: String] = ["path": path]
+        if let n = name, !n.isEmpty {
+            q["name"] = n
+        }
+        try await call("createMusicFolder", q)
+    }
+    
+    /// Updates an existing music folder on the server (Admin required).
+    func updateMusicFolder(id: String, name: String? = nil, path: String? = nil) async throws {
+        var q: [String: String] = ["id": id]
+        if let n = name, !n.isEmpty {
+            q["name"] = n
+        }
+        if let p = path, !p.isEmpty {
+            q["path"] = p
+        }
+        try await call("updateMusicFolder", q)
+    }
+    
+    /// Removes a music folder from the server (Admin required).
+    func removeMusicFolder(id: String) async throws {
+        try await call("deleteMusicFolder", ["id": id])
+    }
+    
+    /// Starts a scan of a specific music folder (Admin required).
+    func scanMusicFolder(id: String) async throws {
+        try await call("scanMusicFolder", ["id": id])
+    }
+    
     /// Fetches all registered users on the server (Admin required).
     func getUsers() async throws -> [SubsonicUser] {
         try await call("getUsers").users?.user ?? []
