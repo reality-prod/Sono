@@ -1,0 +1,32 @@
+oparevalli@Roopas-MacBook-Air Sono % gh auth switch
+? What account do you want to switch to? reality-prod (github.com)
+✓ Switched active account for github.com to reality-prod
+rooparevalli@Roopas-MacBook-Air Sono % git init
+Initialized empty Git repository in /Users/rooparevalli/Downloads/Sono/.git/
+rooparevalli@Roopas-MacBook-Air Sono % nano .gitignore
+rooparevalli@Roopas-MacBook-Air Sono % git add -A .gitignore
+rooparevalli@Roopas-MacBook-Air Sono % git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   .gitignore
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.DS_Store
+	Design/
+	Package.swift
+	README.md
+	Scripts/
+	Sources/
+	build/
+	help/
+
+rooparevalli@Roopas-MacBook-Air Sono % cat .gitignore 
+*.build
+*/build
+rooparevalli@Roopas-MacBook-Air Sono % 
+
