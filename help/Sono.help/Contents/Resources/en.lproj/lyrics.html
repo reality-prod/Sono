@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Synchronized Lyrics - Sono Help</title>
+    <meta name="AppleTitle" content="Synchronized Lyrics">
+    <meta name="description" content="Using real-time synchronized karaoke lyrics streamed directly from Navidrome and Subsonic servers.">
+    <meta name="keywords" content="lyrics, synced, LRC, Navidrome, OpenSubsonic, karaoke, timing, export lrc">
+    <meta name="robots" content="anchors">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a name="lyrics_guide"></a>
+        <h1>Synchronized Lyrics</h1>
+        <p class="intro">Sono streams karaoke-style synchronized lyrics directly from your Navidrome library.</p>
+    </header>
+
+    <nav class="toc">
+        <a href="index.html">← Overview</a>
+        <a href="servers.html">Servers</a>
+        <a href="playback.html">Playback</a>
+        <a href="offline.html">Offline Library</a>
+    </nav>
+
+    <h2>How Navidrome Lyrics Work</h2>
+    <p>Sono uses the OpenSubsonic lyrics API (<code>getLyricsBySongId</code>) and standard Subsonic lyrics (<code>getLyrics</code>). It reads:</p>
+    <ul>
+        <li><strong>Sidecar <code>.lrc</code> files:</strong> LRC files located alongside your music tracks (e.g. <code>SongTitle.lrc</code>).</li>
+        <li><strong>Embedded SYLT / USLT tags:</strong> Synchronized and unsynchronized lyric metadata tags embedded directly inside audio files.</li>
+    </ul>
+
+    <div class="card">
+        <h3>Opening the Lyrics View</h3>
+        <p>Click the speech quote icon (<code>quote.bubble.fill</code>) in the bottom playback bar, or press <code>L</code> on your keyboard. Press <code>Escape</code> or click the close icon to dismiss.</p>
+    </div>
+
+    <h2>Interactive Lyrics Features</h2>
+    <ul>
+        <li><strong>Frame-Accurate Synchronization:</strong> The playhead position is sampled directly from the audio rendering pipeline for lag-free line highlighting.</li>
+        <li><strong>Tap to Seek:</strong> Click on any lyric line to jump playback directly to that timestamp.</li>
+        <li><strong>Copy Lyrics:</strong> Click <strong>Copy</strong> in the lyrics sidebar to copy the full lyrics to your macOS clipboard.</li>
+        <li><strong>Export .lrc:</strong> Click <strong>Export .lrc</strong> to save a standalone timestamped LRC file to your Mac.</li>
+    </ul>
+
+    <footer>
+        <p><a href="index.html">Sono User Guide</a> • macOS Apple Help Book</p>
+    </footer>
+</body>
+</html>

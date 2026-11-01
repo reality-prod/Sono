@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Sono User Guide</title>
+    <meta name="AppleTitle" content="Sono Help">
+    <meta name="description" content="Official user guide for Sono, the high-fidelity macOS Navidrome & Subsonic client.">
+    <meta name="keywords" content="Sono, Navidrome, Subsonic, music, player, macOS, guide, help, streaming, lyrics">
+    <meta name="robots" content="anchors">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a name="sono_overview"></a>
+        <h1>Sono User Guide</h1>
+        <p class="intro">Welcome to Sono, the native, high-fidelity Navidrome and Subsonic client designed exclusively for macOS.</p>
+    </header>
+
+    <nav class="toc">
+        <a href="servers.html">Servers &amp; Setup</a>
+        <a href="playback.html">Playback &amp; Controls</a>
+        <a href="lyrics.html">Synced Lyrics</a>
+        <a href="offline.html">Offline Library</a>
+    </nav>
+
+    <h2>Getting Started</h2>
+    <p>Sono connects directly to your personal music library hosted on <a href="https://www.navidrome.org" target="_blank">Navidrome</a> or any OpenSubsonic/Subsonic compatible server.</p>
+
+    <div class="card">
+        <h3>Quick Setup in 3 Steps</h3>
+        <ol>
+            <li><strong>Add your server:</strong> Choose <strong>Server &gt; Connect to Server…</strong> from the menu bar or click <strong>Add Server</strong> in the Servers tab.</li>
+            <li><strong>Enter your credentials:</strong> Provide your server URL (e.g. <code>http://localhost:4533</code>), username, and password.</li>
+            <li><strong>Start listening:</strong> Sono connects, synchronizes your albums, playlists, and starred songs, and begins streaming original audio.</li>
+        </ol>
+    </div>
+
+    <h2>Core Features</h2>
+    <ul>
+        <li><strong><a href="playback.html">Lossless &amp; Original Audio</a>:</strong> Streams bit-perfect music files directly from your personal storage.</li>
+        <li><strong><a href="lyrics.html">Native Synced Lyrics</a>:</strong> Streams real-time synchronized karaoke lyrics straight from Navidrome via OpenSubsonic.</li>
+        <li><strong><a href="servers.html">Server Management</a>:</strong> Connect multiple servers, switch active libraries, and inspect connection status.</li>
+        <li><strong><a href="offline.html">Offline Storage &amp; Export</a>:</strong> Download songs to <code>~/Music/Sono</code> with no DRM, and export playlists to M3U8, CSV, or JSON.</li>
+    </ul>
+
+    <h2>Keyboard Shortcuts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Shortcut</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Play / Pause</td>
+                <td><code>Space</code> or <code>P</code></td>
+            </tr>
+            <tr>
+                <td>Next Track</td>
+                <td><code>Right Arrow</code></td>
+            </tr>
+            <tr>
+                <td>Previous Track</td>
+                <td><code>Left Arrow</code></td>
+            </tr>
+            <tr>
+                <td>Toggle Synced Lyrics</td>
+                <td><code>L</code></td>
+            </tr>
+            <tr>
+                <td>Toggle Playing Queue</td>
+                <td><code>U</code></td>
+            </tr>
+            <tr>
+                <td>Search Library</td>
+                <td><code>Command + F</code></td>
+            </tr>
+            <tr>
+                <td>Refresh Server Library</td>
+                <td><code>Command + R</code></td>
+            </tr>
+            <tr>
+                <td>Connect to New Server</td>
+                <td><code>Command + Shift + N</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <footer>
+        <p>Sono for macOS • Built with Swift &amp; SwiftUI</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connecting to Servers - Sono Help</title>
+    <meta name="AppleTitle" content="Connecting to Servers">
+    <meta name="description" content="How to connect Sono to your Navidrome or Subsonic server, configure ports, and troubleshoot connection issues.">
+    <meta name="keywords" content="Navidrome, Subsonic, server, connect, URL, port 4533, SSL, HTTPS, authentication, troubleshooting">
+    <meta name="robots" content="anchors">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a name="servers_guide"></a>
+        <h1>Connecting to Servers</h1>
+        <p class="intro">Sono communicates with Subsonic and OpenSubsonic API servers to stream your music collection.</p>
+    </header>
+
+    <nav class="toc">
+        <a href="index.html">← Back to Overview</a>
+        <a href="playback.html">Playback</a>
+        <a href="lyrics.html">Lyrics</a>
+        <a href="offline.html">Offline Library</a>
+    </nav>
+
+    <h2>Server Requirements</h2>
+    <p>Sono requires a running server with Subsonic API support. Recommended servers include:</p>
+    <ul>
+        <li><strong>Navidrome</strong> (recommended for native LRC streaming and OpenSubsonic extensions)</li>
+        <li><strong>Gonic</strong></li>
+        <li><strong>LMS (Lightweight Music Server)</strong></li>
+        <li><strong>Airsonic-Advanced</strong></li>
+        <li><strong>Subsonic</strong></li>
+    </ul>
+
+    <h2>Server Address Format</h2>
+    <p>Your server URL should point to your server's root address. Sono automatically handles API subpaths.</p>
+    <ul>
+        <li><strong>Local Mac installation:</strong> <code>http://localhost:4533</code></li>
+        <li><strong>Home Network / NAS:</strong> <code>http://192.168.1.100:4533</code></li>
+        <li><strong>Domain with HTTPS:</strong> <code>https://music.example.com</code></li>
+    </ul>
+
+    <div class="card">
+        <h3>Authentication &amp; Security</h3>
+        <p>Sono uses Subsonic token authentication with salt (MD5 hash). Your raw password is encrypted safely in your macOS Keychain and is never sent across the network in plain text.</p>
+    </div>
+
+    <h2>Troubleshooting Connections</h2>
+
+    <h3>1. "Cannot connect to server" / Connection Refused</h3>
+    <ul>
+        <li>Verify that your Navidrome server container or service is currently running.</li>
+        <li>Make sure you included the correct port number (default is <code>4533</code> for Navidrome).</li>
+        <li>Check if your Mac's firewall or VPN is blocking access to local network IP addresses.</li>
+    </ul>
+
+    <h3>2. "Wrong username or password" (Subsonic Error 40)</h3>
+    <ul>
+        <li>Check your login credentials in the Navidrome Web UI first to ensure your user account is active.</li>
+        <li>Passwords are case-sensitive. Ensure Caps Lock is off.</li>
+    </ul>
+
+    <h3>3. Reverse Proxy &amp; SSL Issues</h3>
+    <ul>
+        <li>If you use Nginx, Caddy, or Cloudflare, ensure your reverse proxy forwards WebSocket and REST traffic under <code>/rest/*</code>.</li>
+        <li>Ensure your SSL certificate is valid and recognized by macOS.</li>
+    </ul>
+
+    <footer>
+        <p><a href="index.html">Sono User Guide</a> • macOS Apple Help Book</p>
+    </footer>
+</body>
+</html>
