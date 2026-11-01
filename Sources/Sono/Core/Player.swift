@@ -122,7 +122,7 @@ final class Player {
         isPlaying = state.isPlaying
         
         // Restore queue and current track if possible
-        if let currentId = state.currentSongId, !state.queueIds.isEmpty {
+        if !state.queueIds.isEmpty {
             // We need the actual Song objects to restore properly
             // This will be handled by the app state when it loads the library
         }
@@ -216,7 +216,9 @@ final class Player {
             object: item, 
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.updateAudioFormatInfo() }
+            Task { @MainActor in
+                await self?.updateAudioFormatInfo()
+            }
         }
     }
     
@@ -241,7 +243,7 @@ final class Player {
     }
     
     private func handlePlaybackFailure(_ notification: Notification) {
-        guard let playerItem = notification.object as? AVPlayerItem else { return }
+        guard let _ = notification.object as? AVPlayerItem else { return }
         
         if let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error {
             handlePlaybackError(error)
@@ -456,7 +458,7 @@ final class Player {
     func reorderQueue(from sourceIndices: Set<Int>, to destinationIndex: Int) {
         var newQueue = queue
         let itemsToMove = sourceIndices.map { queue[$0] }
-        newQueue.remove(atOffsets: sourceIndices)
+        newQueue.remove(atOffsets: IndexSet(sourceIndices))
         newQueue.insert(contentsOf: itemsToMove, at: destinationIndex)
         queue = newQueue
     }
@@ -520,7 +522,9 @@ final class Player {
             queue: .main
         ) { [weak self] _ in
             // Save state when user seeks
-            self?.savePlaybackState()
+            Task { @MainActor in
+                await self?.savePlaybackState()
+            }
         }
     }
 }

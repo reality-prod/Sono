@@ -50,10 +50,9 @@ private enum LyricsCache {
     }
     
     static func clear() {
-        if let keys = UserDefaults.standard.dictionaryRepresentation().keys.filter({ $0.hasPrefix(cacheKeyPrefix) }) {
-            for key in keys {
-                UserDefaults.standard.removeObject(forKey: key)
-            }
+        let keys = UserDefaults.standard.dictionaryRepresentation().keys.filter({ $0.hasPrefix(cacheKeyPrefix) })
+        for key in keys {
+            UserDefaults.standard.removeObject(forKey: key)
         }
     }
     
@@ -65,13 +64,14 @@ private enum LyricsCache {
 // MARK: - Lyric Variant
 
 struct LyricVariant: Identifiable, Hashable, Codable {
-    let id = UUID()
+    var id: UUID
     let language: String?
     let isSynced: Bool
     let lines: [LyricLine]
     let source: String
     
     init(language: String? = nil, isSynced: Bool, lines: [LyricLine], source: String) {
+        self.id = UUID()
         self.language = language
         self.isSynced = isSynced
         self.lines = lines

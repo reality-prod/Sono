@@ -150,43 +150,6 @@ final class MacOSIntegration: ObservableObject {
         case stop
     }
     
-    // MARK: - Notifications
-    
-    /// Shows a system notification.
-    func showNotification(title: String, subtitle: String, body: String, identifier: String = UUID().uuidString) {
-        #if canImport(UserNotifications)
-        let center = UNUserNotificationCenter.current()
-        
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.subtitle = subtitle
-        content.body = body
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: identifier,
-            content: content,
-            trigger: nil
-        )
-        
-        center.add(request)
-        #endif
-    }
-    
-    /// Requests notification permissions.
-    func requestNotificationPermission() async -> Bool {
-        #if canImport(UserNotifications)
-        do {
-            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
-            return granted
-        } catch {
-            return false
-        }
-        #else
-        return false
-        #endif
-    }
-    
     // MARK: - Menu Bar Player
     
     /// Shows a mini player in a popover.
@@ -196,18 +159,11 @@ final class MacOSIntegration: ObservableObject {
         let popover = NSPopover()
         popover.behavior = .transient
         
-        if #available(macOS 14.0, *) {
-            let hostingView = NSHostingView(rootView: NowPlayingMiniView())
-            popover.contentView = hostingView
-        } else {
-            // Fallback for older macOS
-            let hostingView = NSHostingView(rootView: NowPlayingMiniView())
-            popover.contentSize = NSSize(width: 280, height: 120)
-            // For older macOS, we need to use contentViewController
-            let viewController = NSViewController()
-            viewController.view = hostingView
-            popover.contentViewController = viewController
-        }
+        let hostingView = NSHostingView(rootView: NowPlayingMiniView())
+        let viewController = NSViewController()
+        viewController.view = hostingView
+        popover.contentViewController = viewController
+        popover.contentSize = NSSize(width: 280, height: 120)
         
         // Show the popover
         if let button = NSApplication.shared.windows.first?.contentView {

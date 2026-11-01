@@ -205,7 +205,7 @@ struct LyricsView: View {
         .onAppear {
             loadLyricsData()
         }
-        .onChange(of: s.player.current?.id) { _ in
+        .onChange(of: s.player.current?.id) {
             loadLyricsData()
         }
     }

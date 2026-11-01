@@ -451,7 +451,6 @@ struct ListeningSession: Identifiable, Hashable, Codable {
     enum CodingKeys: String, CodingKey {
         case id = "playerId"
         case user = "username"
-        case playerId
         case client
         case trackId
         case trackTitle

@@ -416,7 +416,7 @@ struct NavidromeClient {
         }
         
         // Fallback: try OpenSubsonic getNowPlaying if available
-        if let response = try? await call("getNowPlaying") {
+        if let _ = try? await call("getNowPlaying") {
             // Parse now playing response
             // This is a placeholder - actual implementation depends on server support
             return []
