@@ -185,21 +185,21 @@ struct Sidebar: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            // Header / App Identity (with macOS window button spacing)
-            HStack(spacing: 10) {
-                SonoLogo(size: 28)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Sono")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text("Navidrome Client")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
+            // Header / App Identity
+            VStack(alignment: .leading, spacing: 12) {
+                SonoLogo(size: 32)
+                    .padding(.leading, 4)
+                
+                Text("Sono")
+                    .font(.system(size: 24, weight: .bold, design: .default))
+                    .fontWeight(.black)
+                    .foregroundStyle(.white)
+                    .tracking(-0.5)
+                    .padding(.leading, 8)
             }
-            .padding(.top, 14)
-            .padding(.horizontal, 12)
+            .padding(.top, 20)
+            .padding(.bottom, 8)
+            .padding(.horizontal, 16)
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -239,46 +239,52 @@ struct Sidebar: View {
                     HStack(spacing: 10) {
                         StatusDot(status: s.serverStatus)
                         
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 1) {
                             Text(active.name)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.system(size: 12, weight: .semibold, design: .default))
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
                             Text(active.user)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .font(.system(size: 10, weight: .medium, design: .default))
+                                .foregroundStyle(.secondary.opacity(0.7))
                                 .lineLimit(1)
                         }
                         
                         Spacer()
                         
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(.secondary.opacity(0.6))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.secondary.opacity(0.5))
                     }
                     .padding(10)
-                    .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.white.opacity(0.08), lineWidth: 1))
+                    .background(
+                        LinearGradient(colors: [Color.white.opacity(0.03), Color.white.opacity(0.01)], startPoint: .top, endPoint: .bottom),
+                        in: RoundedRectangle(cornerRadius: 10)
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.white.opacity(0.06), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 8)
-                .padding(.bottom, 12)
+                .hoverEffect(.highlight)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 16)
             }
         }
-        .padding(.top, 10)
-        .frame(width: 220)
+        .padding(.top, 12)
+        .frame(width: 230)
         .background(.ultraThinMaterial)
         .overlay(alignment: .trailing) {
-            Divider().overlay(Color.white.opacity(0.08))
+            Divider().overlay(Color.white.opacity(0.06))
         }
     }
     
     private func sectionHeader(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 10, weight: .bold))
-            .foregroundStyle(.secondary.opacity(0.7))
-            .padding(.horizontal, 10)
-            .padding(.top, 4)
+            .font(.system(size: 10, weight: .bold, design: .default))
+            .foregroundStyle(.secondary.opacity(0.6))
+            .tracking(1.5)
+            .padding(.horizontal, 14)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
     }
     
     private func navButton(_ p: Page, badge: String?) -> some View {
@@ -286,40 +292,41 @@ struct Sidebar: View {
         return Button {
             s.page = p
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: p.icon)
-                    .font(.system(size: 14, weight: isSelected ? .bold : .regular))
-                    .foregroundStyle(isSelected ? .white : Theme.purple)
-                    .frame(width: 20)
+                    .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
+                    .foregroundStyle(isSelected ? .white : .secondary.opacity(0.8))
+                    .frame(width: 22, alignment: .center)
                 
                 Text(p.rawValue)
-                    .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                    .font(.system(size: 13, weight: isSelected ? .semibold : .regular, design: .default))
                     .foregroundStyle(isSelected ? .white : .secondary)
                 
                 Spacer()
                 
                 if let badge {
                     Text(badge)
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(isSelected ? .white.opacity(0.9) : .secondary.opacity(0.8))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(isSelected ? .white : .secondary.opacity(0.7))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
                         .background(
-                            Capsule().fill(isSelected ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                            Capsule().fill(isSelected ? Theme.purple.opacity(0.3) : Color.white.opacity(0.06))
                         )
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
             .background(
                 isSelected ?
                 LinearGradient(colors: [Theme.purple, Theme.deep], startPoint: .leading, endPoint: .trailing) :
-                LinearGradient(colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing),
-                in: RoundedRectangle(cornerRadius: 9, style: .continuous)
+                Color.clear,
+                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .hoverEffect(.highlight)
     }
 }
 
