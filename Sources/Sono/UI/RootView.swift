@@ -55,6 +55,7 @@ struct RootView: View {
                 
                 // Bottom Playback Bar
                 BottomBar()
+                    .padding(.bottom, 8)
             }
             
             // Full-screen Synced Lyrics overlay
@@ -568,11 +569,11 @@ struct BottomBar: View {
                         let currentProgress = isDraggingSeeker ? dragSeekTime : p.time
                         let remaining = max(0, maxDuration - currentProgress)
                         
-                        HStack(spacing: 10) {
+                        HStack(spacing: 8) {
                             Text(format(currentProgress))
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 42, alignment: .trailing)
+                                .frame(width: 38, alignment: .trailing)
                             
                             Slider(
                                 value: Binding(
@@ -585,29 +586,19 @@ struct BottomBar: View {
                                 in: 0...maxDuration
                             )
                             .tint(Theme.purple)
-                            .frame(width: 320)
+                            .frame(width: 260)
                             
                             Text("-\(format(remaining))")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 48, alignment: .leading)
+                                .frame(width: 42, alignment: .leading)
                         }
                     }
                     
                     Spacer()
                     
                     // Right: Utilities & Audio Volume
-                    HStack(spacing: 14) {
-                        // Audio Quality / Format badge
-                        if let sng = p.current {
-                            Text((sng.suffix ?? "FLAC").uppercased())
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(Theme.purple)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Theme.purple.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
-                        }
-                        
+                    HStack(spacing: 12) {
                         // Speed Menu
                         Menu {
                             ForEach([0.5, 0.75, 1.0, 1.25, 1.5, 2.0], id: \.self) { v in
@@ -626,30 +617,21 @@ struct BottomBar: View {
                         .help("Playback Speed")
                         
                         // Sleep Timer
-                        Menu {
-                            ForEach([15, 30, 45, 60], id: \.self) { m in
-                                Button("\(m) minutes") {
-                                    p.setSleep(minutes: m)
-                                    s.showToast("Sleep timer set for \(m) minutes", kind: .info)
-                                }
-                            }
+                        Button {
                             if p.sleepAt != nil {
-                                Divider()
-                                Button("Cancel Sleep Timer") {
-                                    p.setSleep(minutes: nil)
-                                    s.showToast("Sleep timer cancelled", kind: .info)
-                                }
+                                p.setSleep(minutes: nil)
+                                s.showToast("Sleep timer cancelled", kind: .info)
+                            } else {
+                                p.setSleep(minutes: 30)
+                                s.showToast("Sleep timer set for 30 minutes", kind: .info)
                             }
                         } label: {
                             Image(systemName: "moon.zzz.fill")
-                                .font(.system(size: 14))
+                                .font(.system(size: 13))
                                 .foregroundStyle(p.sleepAt == nil ? .secondary : Theme.purple)
                         }
-                        .menuStyle(.borderlessButton)
-                        .menuIndicator(.hidden)
-                        .fixedSize()
+                        .buttonStyle(.plain)
                         .help(p.sleepAt == nil ? "Sleep Timer" : "Sleep timer active")
-                        
                         // Lyrics Toggle
                         Button {
                             withAnimation { s.showLyrics.toggle() }
@@ -660,7 +642,7 @@ struct BottomBar: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(p.current == nil)
-                        .help("Synced Lyrics (L)")
+                        .help("Synced Lyrics ")
                         
                         // Queue Toggle
                         Button {
@@ -671,7 +653,7 @@ struct BottomBar: View {
                                 .foregroundStyle(s.showQueue ? Theme.purple : .secondary)
                         }
                         .buttonStyle(.plain)
-                        .help("Queue (U)")
+                        .help("Queue ")
                         
                         // Volume Control
                         HStack(spacing: 6) {
@@ -689,14 +671,14 @@ struct BottomBar: View {
                             .buttonStyle(.plain)
                             
                             Slider(value: $p.volume, in: 0...1)
-                                .frame(width: 80)
+                                .frame(width: 60)
                                 .tint(Theme.purple)
                         }
                     }
-                    .frame(width: 280, alignment: .trailing)
+                    .frame(width: 240, alignment: .trailing)
                 }
                 .padding(.horizontal, 24)
-                .frame(height: 84)
+                .frame(height: 72)
                 .background(.regularMaterial)
             }
         }
