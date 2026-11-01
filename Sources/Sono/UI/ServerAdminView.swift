@@ -142,7 +142,7 @@ struct ServerAdminPage: View {
                 Group {
                     switch selectedTab {
                     case .rescan:
-                        RescanAndFoldersView()
+                        RescanAndFoldersView(showFolderBrowser: $showFolderBrowser)
                     case .users:
                         UsersAndAccessView(
                             showCreateUserSheet: $showCreateUserSheet,
@@ -193,6 +193,7 @@ struct ServerAdminPage: View {
 
 struct RescanAndFoldersView: View {
     @Environment(AppState.self) var state
+    @Binding var showFolderBrowser: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
