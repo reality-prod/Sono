@@ -171,14 +171,14 @@ struct FolderBrowserView: View {
                         .contextMenu {
                             if state.isAdmin {
                                 Button {
-                                    addFolder(folder.path)
+                                    Task { await addFolder(folder.path) }
                                 } label: {
                                     Label("Add to Music Library", systemImage: "plus.circle")
                                 }
                                 
                                 if folder.isConfigured {
                                     Button {
-                                        removeFolder(folder.id)
+                                        Task { await removeFolder(folder.id) }
                                     } label: {
                                         Label("Remove from Library", systemImage: "minus.circle")
                                     }
@@ -187,7 +187,7 @@ struct FolderBrowserView: View {
                                 Divider()
                                 
                                 Button {
-                                    scanFolder(folder.id)
+                                    Task { await scanFolder(folder.id) }
                                 } label: {
                                     Label("Scan This Folder", systemImage: "arrow.clockwise")
                                 }
@@ -277,7 +277,6 @@ struct FolderBrowserView: View {
         do {
             // Try to get configured folders first
             let configured = try await state.client?.getMusicFolders() ?? []
-            let configuredPaths = Set(configured.map(\.id))
             
             // Simulate browsing - in reality, Navidrome doesn't expose a full
             // filesystem browser API, so we'd need to use a different approach

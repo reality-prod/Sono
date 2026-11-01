@@ -523,7 +523,7 @@ final class Player {
         ) { [weak self] _ in
             // Save state when user seeks
             Task { @MainActor in
-                await self?.savePlaybackState()
+                self?.savePlaybackState()
             }
         }
     }

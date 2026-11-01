@@ -30,6 +30,7 @@ struct ServerAdminPage: View {
     @State private var editingRadio: InternetRadioStation? = nil
     @State private var isPingTesting = false
     @State private var pingLatency: Int? = nil
+    @State private var showFolderBrowser = false
     
     var body: some View {
         ScrollView {
@@ -177,10 +178,10 @@ struct ServerAdminPage: View {
             RadioStationSheet(stationToEdit: nil)
         }
         .sheet(item: $editingRadio) { station in
+            RadioStationSheet(stationToEdit: station)
+        }
         .sheet(isPresented: $showFolderBrowser) {
             FolderBrowserView(isPresented: $showFolderBrowser)
-        }
-            RadioStationSheet(stationToEdit: station)
         }
         .task {
             await state.loadServerControlData()
@@ -344,7 +345,7 @@ struct RescanAndFoldersView: View {
                                         }
                                         Divider()
                                         Button(role: .destructive) {
-                                            removeFolder(folder)
+                                            Task { await removeFolder(folder.id) }
                                         } label: {
                                             Label("Remove Folder", systemImage: "trash")
                                         }
@@ -388,6 +389,27 @@ struct RescanAndFoldersView: View {
                     MetricStatCard(title: "Offline", count: state.downloads.songs.count, icon: "arrow.down.circle.fill")
                 }
             }
+        }
+    }
+    
+    private func scanSpecificFolder(_ id: String) async {
+        guard let client = state.client else { return }
+        do {
+            try await client.scanMusicFolder(id: id)
+            state.showToast("Started scanning folder", kind: .info)
+        } catch {
+            state.showToast("Failed to scan folder: \(error.localizedDescription)", kind: .error)
+        }
+    }
+    
+    private func removeFolder(_ id: String) async {
+        guard let client = state.client else { return }
+        do {
+            try await client.removeMusicFolder(id: id)
+            state.musicFolders.removeAll { $0.id == id }
+            state.showToast("Removed folder from music library", kind: .info)
+        } catch {
+            state.showToast("Failed to remove folder: \(error.localizedDescription)", kind: .error)
         }
     }
 }
